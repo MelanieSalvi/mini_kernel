@@ -3,7 +3,7 @@
 #include "x86.h"
 
 // TODO: déclarer la table GDT
-
+static gdt_entry_t gdt[3];
 // Pointeur sur la table GDT
 static gdt_ptr_t   gdt_ptr;
 
@@ -48,11 +48,21 @@ static gdt_entry_t data_segment(uint32_t base, uint32_t limit, uint8_t dpl) {
 // Initialize the GDT
 void gdt_init() {
 	// TODO: fixer la limite de gdt_ptr, puis la faire pointer sur la GDT
+	
+	gdt_ptr.limit = (sizeof(gdt_entry_t) * 3) - 1;
+    	gdt_ptr.base = &gdt;
 
 	// TODO: initialisation des trois descripteurs de segment: NULL, segment code, segment data
 	// Les descripteurs de code et data doivent avoir un DPL de 0.
 
+	// Segment NULL
+	gdt[0] = null_segment();
+	// Segment code
+	gdt[1] = code_segment(0, 0xFFFFFFFF,DPL_KERNEL);
+	// Segment data
+	gdt[2] = data_segment(0, 0xFFFFFFFF,DPL_KERNEL);
+		
+
     // Load the GDT
     gdt_flush(&gdt_ptr);
 }
-
